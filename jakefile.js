@@ -3,7 +3,7 @@
   "use strict";
 
   desc("build and test");
-  task("default", ["lint"]);
+  task("default", ["lint", "test"]);
 
   desc("Lint everything");
   task("lint", [], function(){
@@ -21,6 +21,11 @@
   desc("integrate");
   task("integrate", ["default"], function(){
     console.log("integration logic goes here");
+  });
+
+  desc("Test everything");
+  task("test", [], function(){
+    console.log("tests go here");
   });
 
   desc("Integrate");
