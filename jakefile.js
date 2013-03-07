@@ -2,6 +2,11 @@
 (function(){
   "use strict";
 
+  var red, green, reset;
+  red   = '\u001b[31m';
+  green  = '\u001b[32m';
+  reset = '\u001b[0m';
+
   desc("build and test");
   task("default", ["lint", "test"]);
 
@@ -26,8 +31,15 @@
   desc("Test everything");
   task("test", [], function(){
     var reporter = require("nodeunit").reporters['default'];
-    reporter.run(['src/server/_server_test.js']);
-  });
+    reporter.run(['src/server/_server_test.js'], null, function(failures){
+      if(failures){
+        fail(red + "Tests failed" + reset);
+      }else{
+        console.log(green + "Tests Passed" + reset);
+      }
+      complete();
+    });
+  }, { async: true });
 
   desc("Integrate");
   task("integrate", ["default"], function(){
