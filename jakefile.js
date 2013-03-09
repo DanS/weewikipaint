@@ -1,6 +1,7 @@
 /*global desc, task, jake, fail, complete */
 (function(){
   "use strict";
+  console.log("_________________________________________________\n\n\n");
 
   var red, green, reset;
   red   = '\u001b[31m';
