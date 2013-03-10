@@ -1,1 +1,1 @@
-nodemon node_modules/.bin/jake
+nodemon node_modules/.bin/jake --trace
