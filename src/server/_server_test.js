@@ -3,12 +3,6 @@
 var server = require("./server.js");
 var http = require("http");
 
-exports.tearDown = function(done){
-  server.stop(function(){
-    done();
-  });
-};
-
 exports.test_serverRetunshelloWorld = function(test) {
   server.start(8080);
   var request = http.get("http://localhost:8080");
@@ -23,7 +17,30 @@ exports.test_serverRetunshelloWorld = function(test) {
     });
     response.on("end", function(){
       test.ok(receivedData, "should have received responsedata");
-      test.done();
+      server.stop(function(){
+        test.done();
+      });
     });
   });
+};
+
+exports.test_serverRequiresPortNumber = function(test){
+  test.throws(function(){
+    server.start();
+  });
+  test.done();
+};
+
+exports.test_serverRunsCallbackWhenStopCompletes = function(test){
+  server.start(8080);
+  server.stop(function(){
+    test.done();
+  });
+};
+
+exports.test_stopCalledWhenServerisntRunningThrowsException = function(test){
+  test.throws(function(){
+    server.stop();
+  });
+  test.done();
 };
