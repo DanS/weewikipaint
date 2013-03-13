@@ -30,7 +30,7 @@
   });
 
   desc("Test everything");
-  task("test", [], function(){
+  task("test", ["node"], function(){
     var reporter = require("nodeunit").reporters['default'];
     reporter.run(['src/server/_server_test.js'], null, function(failures){
       if(failures){
@@ -54,6 +54,33 @@
     console.log("4. 'git merge master --no-ff, --log'");
     console.log("5. 'git checkout master'");
   });
+
+  //desc("Ensure correct version of Node is present")'
+
+  task("node", [], function(){
+    var DESIRED_NODE_VERSION = 8.4;
+
+    sh("node --version", function(stdout){
+      if(parseFloat(stdout.slice(3)) < DESIRED_NODE_VERSION) {
+        fail("Incorrect node version.  Expected >= 0." + DESIRED_NODE_VERSION);
+        complete();
+      }
+    });
+  }, {async: true });
+
+  function sh(command, callback){
+    console.log("> " + command);
+    var stdout = "";
+    var process = jake.createExec(command, { printStdout: true, printStderr: true });
+    process.on("stdout", function(chunk){
+      stdout += chunk;
+    });
+    process.on("cmdEnd", function(){
+      console.log();
+      callback(stdout);
+    });
+    process.run();
+  }
 
   function nodeLintOptions(){
     return {
