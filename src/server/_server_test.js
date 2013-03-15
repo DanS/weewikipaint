@@ -28,9 +28,15 @@ exports.test_serverRetunshelloWorld = function(test) {
 exports.test_serverServesAFile = function(test){
   var testDir = "generated/test";
   var testFile = testDir + "/test.html";
-  fs.writeFileSync(testFile, "Hello World");
 
-  test.done();
+  try {
+    fs.writeFileSync(testFile, "Hello World");
+    test.done();
+  }
+  finally {
+    fs.unlink(testFile);
+    test.ok(!fs.existsSync(testFile), "File should have been deleted");
+  }
 };
 
 exports.test_serverRequiresPortNumber = function(test){
