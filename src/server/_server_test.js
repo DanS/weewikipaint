@@ -34,7 +34,7 @@ exports.test_serverServesAFile = function(test){
     test.done();
   }
   finally {
-    fs.unlink(testFile);
+    fs.unlinkSync(testFile);
     test.ok(!fs.existsSync(testFile), "File should have been deleted");
   }
 };
