@@ -8,12 +8,9 @@ exports.start = function(htmlFileToServe, portNumber){
   if(!portNumber) { throw "port number is required"; }
   server = http.createServer();
   server.on("request", function(request, response){
-    console.log("********************************************************************");
-    console.log("url = " + request.url);
-    console.log("********************************************************************");
     if(request.url === "/" || request.url === "/index"){
       fs.readFile(htmlFileToServe, function(err, data){
-        if(err) throw err;  //TODO: fix me
+        if(err) throw err;
         response.end(data);
       });
     }
