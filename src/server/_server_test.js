@@ -6,19 +6,18 @@
   var fs = require('fs');
   var testDir = "generated/test";
   var assert = require('assert');
-  var TEST_FILE = testDir + "/test.html";
+  var TEST_HOME_PAGE = testDir + "/testHome.html";
+  var TEST_404_PAGE = testDir + "/test404.html";
 
   exports.tearDown = function(done){
-    if(fs.existsSync(TEST_FILE)){
-      fs.unlinkSync(TEST_FILE);
-      assert.ok(!fs.existsSync(TEST_FILE), "could not delete test file [" + TEST_FILE + ']');
-    }
+    cleanUpFile(TEST_HOME_PAGE);
+    cleanUpFile(TEST_404_PAGE);
     done();
   };
 
   exports.test_servesHomePageFromFile = function(test){
-    var expectedData = "This is served from a file";
-    fs.writeFileSync(TEST_FILE, expectedData);
+    var expectedData = "This is a home page";
+    fs.writeFileSync(TEST_HOME_PAGE, expectedData);
     httpGet("http://localhost:8080", function(response, responseData){
       test.equals(200, response.statusCode, "status code");
       test.equals(expectedData, responseData, "response text");
@@ -27,36 +26,49 @@
   };
 
   exports.test_returns404ForEverythingExceptHomePage = function(test){
+    var expectedData = "This is 404 page file";
+    fs.writeFileSync(TEST_404_PAGE, expectedData);
+
     httpGet("http://localhost:8080/bargle", function(response, responseData){
       test.equals(404, response.statusCode, "status code");
+      test.equals(expectedData, responseData, "404 text");
       test.done();
     });
   };
 
   exports.test_serverHomePageWhenAskedForIndex = function(test){
-    fs.writeFileSync(TEST_FILE, 'foo');
+    var expectedData = "This is a home page";
+    fs.writeFileSync(TEST_HOME_PAGE, expectedData);
     httpGet("http://localhost:8080/index", function(response, responseData){
       test.equals(200, response.statusCode, "status code");
+      test.equals(expectedData, responseData, "404 text");
       test.done();
     });
   };
 
-  exports.test_requiresFileParameter = function(test){
+  exports.test_requiresHomePageParameter = function(test){
     test.throws(function(){
       server.start();
     });
     test.done();
   };
 
+  exports.test_requires404PageParameter = function(test){
+    test.throws(function(){
+      server.start(TEST_HOME_PAGE);
+    });
+    test.done();
+  };
+
   exports.test_requiresPortNumberParameter = function(test){
     test.throws(function(){
-      server.start(TEST_FILE);
+      server.start(TEST_HOME_PAGE, TEST_404_PAGE);
     });
     test.done();
   };
 
   exports.test_runsCallbackWhenStopCompletes = function(test){
-    server.start(TEST_FILE, 8080);
+    server.start(TEST_HOME_PAGE, TEST_404_PAGE, 8080);
     server.stop(function(){
       test.done();
     });
@@ -70,7 +82,7 @@
   };
 
   function httpGet(url, callback ){
-    server.start(TEST_FILE, 8080);
+    server.start(TEST_HOME_PAGE, TEST_404_PAGE, 8080);
     var request = http.get(url);
     request.on("response", function(response){
       var receivedData = "";
@@ -83,6 +95,13 @@
         server.stop(callback(response, receivedData));
       });
     });
+  }
+
+  function cleanUpFile(file){
+    if(fs.existsSync(file)){
+      fs.unlinkSync(file);
+      assert.ok(!fs.existsSync(file), "could not delete test file [" + file + ']');
+    }
   }
 
 })();

@@ -1,27 +1,35 @@
-"use strict";
+(function(){
 
-var http = require("http");
-var fs = require("fs");
-var server;
+  "use strict";
 
-exports.start = function(htmlFileToServe, portNumber){
-  if(!portNumber) { throw "port number is required"; }
-  server = http.createServer();
-  server.on("request", function(request, response){
-    if(request.url === "/" || request.url === "/index"){
-      fs.readFile(htmlFileToServe, function(err, data){
-        if(err) throw err;
-        response.end(data);
-      });
-    }
-    else{
-      response.statusCode = 404;
-      response.end();
-    }
-  });
-  server.listen(portNumber);
-};
+  var http = require("http");
+  var fs = require("fs");
+  var server;
 
-exports.stop = function(callback){
-  server.close(callback);
-};
+  exports.start = function(homePageToServe, notFoundPageToServe, portNumber){
+    if(!portNumber) { throw "port number is required"; }
+    server = http.createServer();
+    server.on("request", function(request, response){
+      if(request.url === "/" || request.url === "/index"){
+        response.statusCode = 200;
+        serveFile(response, homePageToServe);
+      }
+      else{
+        response.statusCode = 404;
+        serveFile(response, notFoundPageToServe);
+      }
+    });
+    server.listen(portNumber);
+  };
+
+  exports.stop = function(callback){
+    server.close(callback);
+  };
+
+  function serveFile(response, file){
+    fs.readFile(file, function(err, data){
+      if(err) throw err;
+      response.end(data);
+    });
+  }
+})();
