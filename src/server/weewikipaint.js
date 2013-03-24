@@ -1,9 +1,10 @@
 (function(){
   "use strict";
 
+  var CONTENT_DIR = "src/server/content";
   var server = require("./server.js");
   var port = process.argv[2];
-  server.start("src/server/content/home.html", "src/server/content/404.html", port, function(){
+  server.start(CONTENT_DIR + "/home.html", CONTENT_DIR + "/404.html", port, function(){
     console.log("Server started");
   });
 }());
