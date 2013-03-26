@@ -1,4 +1,5 @@
-(function(){
+// Copyright (c) 2012 Titanium I.T. LLC. All rights reserved. See LICENSE.txt for details.
+(function() {
   "use strict";
 
   var server = require("./server.js");
@@ -36,12 +37,11 @@
     });
   };
 
-  exports.test_serverHomePageWhenAskedForIndex = function(test){
-    var expectedData = "This is a home page";
-    fs.writeFileSync(TEST_HOME_PAGE, expectedData);
-    httpGet("http://localhost:8080/index", function(response, responseData){
+  exports.test_returnsHomePageWhenAskedForIndex = function(test) {
+    fs.writeFileSync(TEST_HOME_PAGE, "foo");
+
+    httpGet("http://localhost:8080/index.html", function(response, responseData) {
       test.equals(200, response.statusCode, "status code");
-      test.equals(expectedData, responseData, "404 text");
       test.done();
     });
   };
@@ -60,8 +60,8 @@
     test.done();
   };
 
-  exports.test_requiresPortNumberParameter = function(test){
-    test.throws(function(){
+  exports.test_requiresPortParameter = function(test) {
+    test.throws(function() {
       server.start(TEST_HOME_PAGE, TEST_404_PAGE);
     });
     test.done();
@@ -81,18 +81,20 @@
     test.done();
   };
 
-  function httpGet(url, callback ){
-    server.start(TEST_HOME_PAGE, TEST_404_PAGE, 8080, function(){
+  function httpGet(url, callback) {
+    server.start(TEST_HOME_PAGE, TEST_404_PAGE, 8080, function() {
       var request = http.get(url);
-      request.on("response", function(response){
+      request.on("response", function(response) {
         var receivedData = "";
         response.setEncoding("utf8");
 
-        response.on("data", function(chunk){
+        response.on("data", function(chunk) {
           receivedData += chunk;
         });
-        response.on("end", function(){
-          server.stop(callback(response, receivedData));
+        response.on("end", function() {
+          server.stop(function() {
+            callback(response, receivedData);
+          });
         });
       });
     });

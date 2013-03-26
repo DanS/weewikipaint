@@ -10,7 +10,7 @@
     if(!portNumber) { throw "port number is required"; }
     server = http.createServer();
     server.on("request", function(request, response){
-      if(request.url === "/" || request.url === "/index"){
+      if(request.url === "/" || request.url === "/index.html"){
         response.statusCode = 200;
         serveFile(response, homePageToServe);
       }
