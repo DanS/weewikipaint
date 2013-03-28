@@ -44,6 +44,7 @@
     var testFiles = new jake.FileList();
     testFiles.include("**/_*_test.js");
     testFiles.exclude("node_modules");
+    testFiles.exclude("src/_release_test.js");
     var reporter = require("nodeunit").reporters['default'];
     reporter.run(testFiles.toArray(), null, function(failures){
       if(failures){
@@ -54,6 +55,13 @@
       complete();
     });
   }, { async: true });
+
+  desc("Deploy to Heroku");
+  task("deploy", ["default"], function(){
+    console.log("1. Make sure git status is clean.");
+    console.log("2. 'git push heroku master'");
+    console.log("3. 'jake releasetest'");
+  });
 
   desc("Integrate");
   task("integrate", ["default"], function(){
