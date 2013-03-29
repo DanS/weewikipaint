@@ -29,3 +29,4 @@ public/assets
 rails_best_practices_output.html
 .sass-cache/*
 .powrc
+/node_modules/testacular/node_modules/socket.io/node_modules/socket.io-client/node_modules/ws/build
