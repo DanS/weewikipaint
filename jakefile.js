@@ -45,6 +45,7 @@
     testFiles.include("**/_*_test.js");
     testFiles.exclude("node_modules");
     testFiles.exclude("src/_release_test.js");
+    testFiles.exclude("/src/client/**");
     var reporter = require("nodeunit").reporters['default'];
     reporter.run(testFiles.toArray(), null, function(failures){
       if(failures){
