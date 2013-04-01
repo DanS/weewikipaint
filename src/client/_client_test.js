@@ -1,7 +1,11 @@
+/*global describe, it, expect*/
 
-describe("Nothing", function(){
-  it("should run", function(){
-    expect("foo").to.equal("foo");
+(function(){
+  "use strict";
+
+  describe("Nothing", function(){
+    it("should run", function(){
+      expect("foo").to.equal("foo");
+    });
   });
-});
-
+}());
