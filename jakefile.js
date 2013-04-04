@@ -32,7 +32,7 @@
 
     var options = nodeLintOptions();
     var passed = lint.validateFileList(javascriptFiles.toArray(), options, {});
-    if (!passed)  fail("Lint failed");
+    if (!passed)  fail(red + "Lint failed" + reset);
   });
 
   desc("integrate");
@@ -63,8 +63,8 @@
 
   desc("Test client code");
   task("testClient", function(){
-    console.log("CLIENT CODE HERE");
-  });
+    sh("node node_modules/.bin/testacular run", "Client tests failed", complete);
+  }, {async: true});
 
   desc("Deploy to Heroku");
   task("deploy", ["default"], function(){
@@ -89,8 +89,8 @@
   //	desc("Ensure correct version of Node is present. Use 'strict=true' to require exact match");
   task("nodeVersion", [], function() {
     function failWithQualifier(qualifier) {
-      fail("Incorrect node version. Expected " + qualifier +
-           " [" + expectedString + "], but was [" + actualString + "].");
+      fail(red + "Incorrect node version. Expected " + qualifier +
+           " [" + expectedString + "], but was [" + actualString + "]." + reset);
     }
 
     var expectedString = NODE_VERSION;
@@ -114,7 +114,7 @@
   function parseNodeVersion(description, versionString) {
     var versionMatcher = /^v(\d+)\.(\d+)\.(\d+)$/;    // v[major].[minor].[bugfix]
     var versionInfo = versionString.match(versionMatcher);
-    if (versionInfo === null) fail("Could not parse " + description + " (was '" + versionString + "')");
+    if (versionInfo === null) fail(red + "Could not parse " + description + " (was '" + versionString + "')" + reset);
 
     var major = parseInt(versionInfo[1], 10);
     var minor = parseInt(versionInfo[2], 10);
@@ -122,7 +122,7 @@
     return [major, minor, bugfix];
   }
 
-  function sh(command, callback) {
+  function sh(command, errorMessage, callback) {
     console.log("> " + command);
 
     var stdout = "";
@@ -130,8 +130,10 @@
     process.on("stdout", function(chunk) {
       stdout += chunk;
     });
+    process.on("error", function(){
+      fail(red + errorMessage + reset);
+    });
     process.on("cmdEnd", function() {
-      console.log();
       callback(stdout);
     });
     process.run();
