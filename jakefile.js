@@ -1,9 +1,12 @@
 /*global desc, task, jake, fail, complete, directory */
+
 (function(){
   "use strict";
   var NODE_VERSION = "v0.8.6";
   var GENERATED_DIR = 'generated';
   var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
+  var lint = require("./build/lint/lint_runner.js");
+  var nodeUnit = require("nodeunit").reporters['default'];
 
   directory(TEMP_TESTFILE_DIR);
   console.log("_________________________________________________\n\n\n");
@@ -22,16 +25,16 @@
   task("default", ["lint", "test"]);
 
   desc("Lint everything");
-  task("lint", [], function(){
-    var lint = require("./build/lint/lint_runner.js");
+  task("lint", ["lintNode", "lintClient"]);
 
-    var javascriptFiles = new jake.FileList();
-    javascriptFiles.include("**/*.js");
-    javascriptFiles.exclude("node_modules");
-    javascriptFiles.exclude("testacular.conf.js");
 
-    var options = nodeLintOptions();
-    var passed = lint.validateFileList(javascriptFiles.toArray(), options, {});
+  task("lintNode", ["nodeVersion"], function(){
+    var passed = lint.validateFileList(nodeFiles(), nodeLintOptions(), {});
+    if (!passed)  fail(red + "Lint failed" + reset);
+  });
+
+  task("lintClient", function(){
+    var passed = lint.validateFileList(clientFiles(), browserLintOptions, {});
     if (!passed)  fail(red + "Lint failed" + reset);
   });
 
@@ -41,17 +44,11 @@
   });
 
   desc("Test everything");
-  task("test", ["testServer", "testClient"]);
+  task("test", ["testNode", "testClient"]);
 
   desc("Test server code");
-  task("testServer", ["nodeVersion", TEMP_TESTFILE_DIR], function(){
-    var testFiles = new jake.FileList();
-    testFiles.include("**/_*_test.js");
-    testFiles.exclude("node_modules");
-    testFiles.exclude("src/_release_test.js");
-    testFiles.exclude("src/client/**");
-    var reporter = require("nodeunit").reporters['default'];
-    reporter.run(testFiles.toArray(), null, function(failures){
+  task("testNode", ["nodeVersion", TEMP_TESTFILE_DIR], function(){
+    nodeUnit.run(nodeTestFiles(), null, function(failures){
       if(failures){
         fail(red + "Tests failed" + reset);
       }else{
@@ -63,8 +60,14 @@
 
   desc("Test client code");
   task("testClient", function(){
-    sh("node node_modules/.bin/testacular run", "Client tests failed", complete);
+    sh("node node_modules/.bin/testacular run", "Client tests failed", function(output){
+      assertBrowserIsTested("Chrome", output);
+    });
   }, {async: true});
+
+  function assertBrowserIsTested(browserName, output){
+    fail(red + browserName + " was not tested!" + reset);
+  }
 
   desc("Deploy to Heroku");
   task("deploy", ["default"], function(){
@@ -108,14 +111,12 @@
       if (actual[0] === expected[0] && actual[1] < expected[1]) failWithQualifier("at least");
       if (actual[0] === expected[0] && actual[1] === expected[1] && actual[2] < expected[2]) failWithQualifier("at least");
     }
-
   });
 
   function parseNodeVersion(description, versionString) {
     var versionMatcher = /^v(\d+)\.(\d+)\.(\d+)$/;    // v[major].[minor].[bugfix]
     var versionInfo = versionString.match(versionMatcher);
     if (versionInfo === null) fail(red + "Could not parse " + description + " (was '" + versionString + "')" + reset);
-
     var major = parseInt(versionInfo[1], 10);
     var minor = parseInt(versionInfo[2], 10);
     var bugfix = parseInt(versionInfo[3], 10);
@@ -139,7 +140,7 @@
     process.run();
   }
 
-  function nodeLintOptions() {
+  function globalLintOptions() {
     return {
       bitwise:true,
       curly:false,
@@ -154,8 +155,43 @@
       regexp:true,
       undef:true,
       strict:true,
-      trailing:true,
-      node:true
+      trailing:true
     };
   }
+
+  function nodeFiles() {
+    var javascriptFiles = new jake.FileList();
+    javascriptFiles.include("**/*.js");
+    javascriptFiles.exclude("node_modules");
+    javascriptFiles.exclude("testacular.conf.js");
+    javascriptFiles.exclude("src/client/**");
+    return javascriptFiles.toArray();
+  }
+
+  function nodeTestFiles() {
+    var testFiles = new jake.FileList();
+    testFiles.include("**/_*_test.js");
+    testFiles.exclude("node_modules");
+    testFiles.exclude("src/client/**");
+    return testFiles.toArray();
+  }
+
+  function clientFiles(){
+    var javascriptFiles = new jake.FileList();
+    javascriptFiles.include("src/client/**/*.js");
+    return javascriptFiles.toArray();
+  }
+
+  function nodeLintOptions() {
+    var options = globalLintOptions();
+    options.node = true;
+    return options;
+  }
+
+  function browserLintOptions() {
+    var options = globalLintOptions();
+    options.browser = true;
+    return options;
+  }
+
 }());
