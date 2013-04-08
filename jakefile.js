@@ -3,6 +3,7 @@
 (function(){
   "use strict";
   var NODE_VERSION = "v0.8.6";
+  var SUPPORTED_BROWSERS = ["Firefox 19.0 (Mac)", "Chrome 27.0 (Mac)"];
   var GENERATED_DIR = 'generated';
   var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
   var lint = require("./build/lint/lint_runner.js");
@@ -61,12 +62,18 @@
   desc("Test client code");
   task("testClient", function(){
     sh("node node_modules/.bin/testacular run", "Client tests failed", function(output){
-      assertBrowserIsTested("Chrome", output);
+      SUPPORTED_BROWSERS.forEach(function(browser){
+        assertBrowserIsTested(browser, output);
+      });
     });
   }, {async: true});
 
   function assertBrowserIsTested(browserName, output){
-    fail(red + browserName + " was not tested!" + reset);
+    var searchString = browserName + ": Executed";
+    var found = output.indexOf(searchString) !== -1;
+    if(!found){
+      fail(red + browserName + " was not tested!" + reset);
+    }
   }
 
   desc("Deploy to Heroku");
