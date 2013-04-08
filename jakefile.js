@@ -4,6 +4,7 @@
   "use strict";
   var NODE_VERSION = "v0.8.6";
   var SUPPORTED_BROWSERS = ["Firefox 19.0 (Mac)", "Chrome 27.0 (Mac)"];
+
   var GENERATED_DIR = 'generated';
   var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
   var lint = require("./build/lint/lint_runner.js");
@@ -24,6 +25,11 @@
 
   desc("build and test");
   task("default", ["lint", "test"]);
+
+  desc("Start testacular server for testing");
+  task("testacular", function(){
+    sh("node node_modules/.bin/testacular start build/testacular.conf.js", "Could not start Testacular server", complete);
+  }, {async: true});
 
   desc("Lint everything");
   task("lint", ["lintNode", "lintClient"]);
@@ -65,6 +71,7 @@
       SUPPORTED_BROWSERS.forEach(function(browser){
         assertBrowserIsTested(browser, output);
       });
+      if (output.indexOf("TOTAL: 0 SUCCESS") !== -1) fail(red + "Client tests did not run" + reset);
     });
   }, {async: true});
 
