@@ -1,113 +1,118 @@
-/*global desc, task, jake, fail, complete, directory */
+// Copyright (c) 2012 Titanium I.T. LLC. All rights reserved. See LICENSE.txt for details.
 
-(function(){
+/*global desc, task, jake, fail, complete, directory*/
+(function() {
   "use strict";
-  var NODE_VERSION = "v0.8.6";
-  var SUPPORTED_BROWSERS = ["Firefox 19.0 (Mac)", "Chrome 27.0 (Mac)"];
 
-  var GENERATED_DIR = 'generated';
-  var TEMP_TESTFILE_DIR = GENERATED_DIR + '/test';
-  var lint = require("./build/lint/lint_runner.js");
-  var nodeUnit = require("nodeunit").reporters['default'];
-
-  directory(TEMP_TESTFILE_DIR);
   console.log("_________________________________________________\n\n\n");
+  if (!process.env.loose) console.log("For more forgiving test settings, use 'loose=true'");
 
+  var lint = require("./build/lint/lint_runner.js");
+  var nodeunit = require("nodeunit").reporters["default"];
+  var path = require("path");
+  
   var red, green, reset;
   red   = '\u001b[31m';
   green  = '\u001b[32m';
   reset = '\u001b[0m';
 
+  var NODE_VERSION = "v0.8.10";
+  var SUPPORTED_BROWSERS = [
+    //"IE 8.0",
+    //"IE 9.0",
+    //"Firefox 16.0",
+    //"Chrome 22.0",
+    "Mac Safari 6.0"
+    //"iOS Safari 6.0"
+  ];
+
+  var GENERATED_DIR = "generated";
+  var TEMP_TESTFILE_DIR = GENERATED_DIR + "/test";
+
+  directory(TEMP_TESTFILE_DIR);
+
   desc("Delete all generated files");
-  task("clean", [], function(){
+  task("clean", [], function() {
     jake.rmRf(GENERATED_DIR);
   });
 
-  desc("build and test");
+  desc("Build and test");
   task("default", ["lint", "test"]);
 
-  desc("Start testacular server for testing");
-  task("testacular", function(){
-    sh("node node_modules/.bin/testacular start build/testacular.conf.js", "Could not start Testacular server", complete);
+  desc("Start Testacular server for testing");
+  task("testacular", function() {
+    sh("node", ["node_modules/testacular/bin/testacular", "start", "build/testacular.conf.js"],
+       "Could not start Testacular server", complete);
   }, {async: true});
 
   desc("Lint everything");
   task("lint", ["lintNode", "lintClient"]);
 
-
-  task("lintNode", ["nodeVersion"], function(){
+  task("lintNode", ["nodeVersion"], function() {
     var passed = lint.validateFileList(nodeFiles(), nodeLintOptions(), {});
-    if (!passed)  fail(red + "Lint failed" + reset);
+    if (!passed) fail(red + "Lint failed" + green);
   });
 
-  task("lintClient", function(){
-    var passed = lint.validateFileList(clientFiles(), browserLintOptions, {});
-    if (!passed)  fail(red + "Lint failed" + reset);
-  });
-
-  desc("integrate");
-  task("integrate", ["default"], function(){
-    console.log("integration logic goes here");
+  task("lintClient", function() {
+    var passed = lint.validateFileList(clientFiles(), browserLintOptions(), {});
+    if (!passed) fail("red + Lint failed" + green);
   });
 
   desc("Test everything");
   task("test", ["testNode", "testClient"]);
 
   desc("Test server code");
-  task("testNode", ["nodeVersion", TEMP_TESTFILE_DIR], function(){
-    nodeUnit.run(nodeTestFiles(), null, function(failures){
-      if(failures){
-        fail(red + "Tests failed" + reset);
-      }else{
-        console.log(green + "Tests Passed" + reset);
-      }
+  task("testNode", ["nodeVersion", TEMP_TESTFILE_DIR], function() {
+    nodeunit.run(nodeTestFiles(), null, function(failures) {
+      if (failures) fail("red + Tests failed" + green);
       complete();
-    });
-  }, { async: true });
-
-  desc("Test client code");
-  task("testClient", function(){
-    sh("node node_modules/.bin/testacular run", "Client tests failed", function(output){
-      SUPPORTED_BROWSERS.forEach(function(browser){
-        assertBrowserIsTested(browser, output);
-      });
-      if (output.indexOf("TOTAL: 0 SUCCESS") !== -1) fail(red + "Client tests did not run" + reset);
     });
   }, {async: true});
 
-  function assertBrowserIsTested(browserName, output){
-    var searchString = browserName + ": Executed";
-    var found = output.indexOf(searchString) !== -1;
-    if(!found){
-      fail(red + browserName + " was not tested!" + reset);
-    }
+  desc("Test client code");
+  task("testClient", function() {
+    var config = {};
+
+    var output = "";
+    var oldStdout = process.stdout.write;
+    process.stdout.write = function(data) {
+      output += data;
+      oldStdout.apply(this, arguments);
+    };
+
+    require("testacular/lib/runner").run(config, function(exitCode) {
+      process.stdout.write = oldStdout;
+
+      if (exitCode) fail(red + "Client tests failed (to start server, run 'jake testacular')" + green);
+      var browserMissing = false;
+      SUPPORTED_BROWSERS.forEach(function(browser) {
+        browserMissing = checkIfBrowserTested(browser, output) || browserMissing;
+      });
+      if (browserMissing && !process.env.loose) fail(red + "Did not test all supported browsers (use 'loose=true' to suppress error)" + green);
+      if (output.indexOf("TOTAL: 0 SUCCESS") !== -1) fail(red + "Client tests did not run!" + green);
+
+      complete();
+    });
+  }, {async: true});
+
+  function checkIfBrowserTested(browser, output) {
+    var missing = output.indexOf(browser + ": Executed") === -1;
+    if (missing) console.log(browser + " was not tested!");
+    return missing;
   }
 
   desc("Deploy to Heroku");
-  task("deploy", ["default"], function(){
-    console.log("1. Make sure git status is clean.");
+  task("deploy", ["default"], function() {
+    console.log("1. Make sure 'git status' is clean.");
     console.log("2. 'git push heroku master'");
-    console.log("3. 'jake releasetest'");
+    console.log("3. 'jake test'");
   });
 
-  desc("Integrate");
-  task("integrate", ["default"], function(){
-    console.log("1. Make sure git status is clean.");
-    console.log("2. Build on integration box");
-    console.log("   a. walk over to integration box.");
-    console.log("   b. 'git pull'");
-    console.log("   c. 'jake'");
-    console.log("   d. If jake fails, stop! Try again after fixing the issue");
-    console.log("3. 'git checkout integration'");
-    console.log("4. 'git merge master --no-ff, --log'");
-    console.log("5. 'git checkout master'");
-  });
-
-  //	desc("Ensure correct version of Node is present. Use 'strict=true' to require exact match");
+  //	desc("Ensure correct version of Node is present.");
   task("nodeVersion", [], function() {
     function failWithQualifier(qualifier) {
       fail(red + "Incorrect node version. Expected " + qualifier +
-           " [" + expectedString + "], but was [" + actualString + "]." + reset);
+           " [" + expectedString + "], but was [" + actualString + "]." + green);
     }
 
     var expectedString = NODE_VERSION;
@@ -115,7 +120,7 @@
     var expected = parseNodeVersion("expected Node version", expectedString);
     var actual = parseNodeVersion("Node version", actualString);
 
-    if (process.env.strict) {
+    if (!process.env.loose) {
       if (actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2]) {
         failWithQualifier("exactly");
       }
@@ -127,50 +132,75 @@
     }
   });
 
+  desc("Integration checklist");
+  task("integrate", ["default"], function() {
+    console.log("1. Make sure 'git status' is clean.");
+    console.log("2. Build on the integration box.");
+    console.log("   a. Walk over to integration box.");
+    console.log("   b. 'git pull'");
+    console.log("   c. 'npm rebuild'");
+    console.log("   d. Check status for files that need to be .gitignore'd");
+    console.log("   e. 'jake'");
+    console.log("   f. If jake fails, stop! Try again after fixing the issue.");
+    console.log("3. 'git checkout integration'");
+    console.log("4. 'git merge master --no-ff --log'");
+    console.log("5. 'git checkout master'");
+  });
+
+  desc("End-of-episode checklist");
+  task("episode", [], function() {
+    console.log("1. Save recording.");
+    console.log("2. Double-check sound and framing.");
+    console.log("3. Commit source code.");
+    console.log("4. Check Windows compatibility");
+    console.log("   a. Switch to Windows VM");
+    console.log("   b. 'git pull'");
+    console.log("   c. 'npm rebuild'");
+    console.log("   d. Check status for files that need to be .gitignore'd");
+    console.log("   e. 'jake'");
+    console.log("5. Tag episode: 'git tag -a episodeXX -m \"End of episode XX\"'");
+  });
+
   function parseNodeVersion(description, versionString) {
     var versionMatcher = /^v(\d+)\.(\d+)\.(\d+)$/;    // v[major].[minor].[bugfix]
     var versionInfo = versionString.match(versionMatcher);
-    if (versionInfo === null) fail(red + "Could not parse " + description + " (was '" + versionString + "')" + reset);
+    if (versionInfo === null) fail(red + "Could not parse " + description + " (was '" + versionString + "')" + green);
+
     var major = parseInt(versionInfo[1], 10);
     var minor = parseInt(versionInfo[2], 10);
     var bugfix = parseInt(versionInfo[3], 10);
     return [major, minor, bugfix];
   }
 
-  function sh(command, errorMessage, callback) {
-    console.log("> " + command);
+  function sh(command, args, errorMessage, callback) {
+    console.log("> " + command + " " + args.join(" "));
 
+    // Not using jake.createExec as it adds extra line-feeds into output as of v0.3.7
+    var child = require("child_process").spawn(command, args, { stdio: "pipe" });
+
+    // redirect stdout
     var stdout = "";
-    var process = jake.createExec(command, {printStdout:true, printStderr: true});
-    process.on("stdout", function(chunk) {
+    child.stdout.setEncoding("utf8");
+    child.stdout.on("data", function(chunk) {
       stdout += chunk;
+      process.stdout.write(chunk);
     });
-    process.on("error", function(){
-      fail(red + errorMessage + reset);
-    });
-    process.on("cmdEnd", function() {
-      callback(stdout);
-    });
-    process.run();
-  }
 
-  function globalLintOptions() {
-    return {
-      bitwise:true,
-      curly:false,
-      eqeqeq:true,
-      forin:true,
-      immed:true,
-      latedef:true,
-      newcap:true,
-      noarg:true,
-      noempty:true,
-      nonew:true,
-      regexp:true,
-      undef:true,
-      strict:true,
-      trailing:true
-    };
+    // redirect stderr
+    var stderr = "";
+    child.stderr.setEncoding("utf8");
+    child.stderr.on("data", function(chunk) {
+      stderr += chunk;
+      process.stderr.write(chunk);
+    });
+
+    // handle process exit
+    child.on("exit", function(exitCode) {
+      if (exitCode !== 0) fail(red + errorMessage + green );
+    });
+    child.on("close", function() {      // 'close' event can happen after 'exit' event
+      callback(stdout, stderr);
+    });
   }
 
   function nodeFiles() {
@@ -184,13 +214,13 @@
 
   function nodeTestFiles() {
     var testFiles = new jake.FileList();
-    testFiles.include("**/_*_test.js");
-    testFiles.exclude("node_modules");
-    testFiles.exclude("src/client/**");
-    return testFiles.toArray();
+    testFiles.include("src/server/**/_*_test.js");
+    testFiles.include("src/_*_test.js");
+    testFiles = testFiles.toArray();
+    return testFiles;
   }
 
-  function clientFiles(){
+  function clientFiles() {
     var javascriptFiles = new jake.FileList();
     javascriptFiles.include("src/client/**/*.js");
     return javascriptFiles.toArray();
@@ -205,6 +235,26 @@
   function browserLintOptions() {
     var options = globalLintOptions();
     options.browser = true;
+    return options;
+  }
+
+  function globalLintOptions() {
+    var options = {
+      bitwise: true,
+      curly: false,
+      eqeqeq: true,
+      forin: true,
+      immed: true,
+      latedef: true,
+      newcap: true,
+      noarg: true,
+      noempty: true,
+      nonew: true,
+      regexp: true,
+      undef: true,
+      strict: true,
+      trailing: true
+    };
     return options;
   }
 

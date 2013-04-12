@@ -1,5 +1,5 @@
 // Testacular configuration
-// Generated on Sat Mar 30 2013 10:57:15 GMT-0700 (PDT)
+// Generated on Thu Sep 27 2012 16:15:00 GMT-0700 (PDT)
 
 
 // base path, that will be used to resolve files and exclude
@@ -8,22 +8,22 @@ basePath = '..';
 
 // list of files / patterns to load in the browser
 files = [
-  MOCHA,
-  MOCHA_ADAPTER,
-  "node_modules/expect.js/expect.js",
-  "src/client/*.js"
+	MOCHA,
+	MOCHA_ADAPTER,
+	"node_modules/expect.js/expect.js",
+	"src/client/*.js"
 ];
 
 
 // list of files to exclude
 exclude = [
-  
+
 ];
 
 
 // test results reporter to use
-// possible values: 'dots', 'progress', 'junit'
-reporters = ['progress'];
+// possible values: dots || progress
+reporter = 'dots';
 
 
 // web server port
@@ -52,14 +52,9 @@ autoWatch = false;
 // - ChromeCanary
 // - Firefox
 // - Opera
-// - Safari (only Mac)
+// - Safari
 // - PhantomJS
-// - IE (only Windows)
 browsers = [];
-
-
-// If browser does not capture in given timeout [ms], kill it
-captureTimeout = 60000;
 
 
 // Continuous Integration mode
