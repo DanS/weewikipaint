@@ -10,9 +10,13 @@
     it("should run", function () {
       var div = document.createElement("div");
       div.setAttribute("id", "tdjs");
+      div.setAttribute("foo", "bar");
+      div.innerHTML = "asdfasdf";
       document.body.appendChild(div);
-      debugger
       dump('breakpoint');
+      
+      var extractedDiv = document.getElementById("tdjs");
+      expect(extractedDiv.getAttribute('foo')).to.equal('bar');
     });
 
   });
