@@ -57,7 +57,7 @@
 
   task("lintClient", function() {
     var passed = lint.validateFileList(clientFiles(), browserLintOptions(), {});
-    if (!passed) fail("red + Lint failed" + green);
+    if (!passed) fail(red + "Lint failed" + green);
   });
 
   desc("Test everything");
