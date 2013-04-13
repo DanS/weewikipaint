@@ -37,7 +37,9 @@
   });
 
   desc("Build and test");
-  task("default", ["lint", "test"]);
+  task("default", ["lint", "test"], function(){
+    console.log(green + '-- OK --' + reset);
+  });
 
   desc("Start Testacular server for testing");
   task("testacular", function() {
