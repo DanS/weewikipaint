@@ -8,10 +8,11 @@ basePath = '..';
 
 // list of files / patterns to load in the browser
 files = [
-	MOCHA,
-	MOCHA_ADAPTER,
-	"node_modules/expect.js/expect.js",
-	"src/client/*.js"
+  MOCHA,
+  MOCHA_ADAPTER,
+  "node_modules/expect.js/expect.js",
+  "vendor_client/jquery-1.9.1.js",
+  "src/client/*.js"
 ];
 
 
