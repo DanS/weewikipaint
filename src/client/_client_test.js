@@ -1,5 +1,5 @@
 // Copyright (c) 2012 Titanium I.T. LLC. All rights reserved. See LICENSE.txt for details.
-/*global describe, it, expect, dump wwp*/
+/*global describe, it, expect, dump, wwp, $ */
 
 (function () {
   "use strict";
@@ -12,9 +12,13 @@
       document.body.appendChild(div);
       
       wwp.initializeDrawingArea('wwp-drawingArea');
-
-      var extractedDiv = document.getElementById("wwp-drawingArea");
-      expect(extractedDiv).to.be.ok();
+      
+      var tagName = $(div).children()[0].tagName;
+      if(tagName === "svg"){
+        expect(tagName).to.equal("svg");
+      }else{
+        expect(tagName).to.equal("DIV");
+      }
     });
 
   });
