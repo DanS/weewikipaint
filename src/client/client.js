@@ -1,12 +1,14 @@
-/*global $ dump wwp:true Raphael */
+// Copyright (c) 2012 Titanium I.T. LLC. All rights reserved. See LICENSE.txt for details.
+/*global dump, Raphael, wwp:true*/
 
 wwp = {};
 
-(function(){
+(function() {
   "use strict";
 
-  wwp.initializeDrawingArea = function(drawingAreaId){
-    var paper = new Raphael(drawingAreaId);
+  wwp.initializeDrawingArea = function(drawingAreaElement) {
+    var paper = new Raphael(drawingAreaElement);
+    return paper;
   };
 
 }());
