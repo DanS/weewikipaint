@@ -21,14 +21,14 @@
 
       // verify it was initialized correctly
       var tagName = $(drawingDiv).children()[0].tagName.toLowerCase();
-      if (Raphael.type === 'svg'){
+      if (Raphael.type === 'SVG'){
         expect(tagName).to.equal("svg");
       }
-      else if(Raphael.type === 'vml'){
+      else if(Raphael.type === 'VML'){
         expect(tagName).to.equal("div");
-      } //else {
-        //expect().fail("Browser does not support Raphael");
-      //}
+      } else {
+        throw new Error("Raphael doesn't support this browser");
+      }
     });
 
     it("should have the same dimensions as its enclosing div", function() {
