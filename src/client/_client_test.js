@@ -39,6 +39,20 @@
       expect(paper.width).to.equal(400);
       expect(paper.height).to.equal(200);
     });
+    
+    it("should draw a line", function(){
+      drawingDiv = $("<div style='height: 200px; width: 400px'>hi</div>");
+      $(document.body).append(drawingDiv);
+      var paper = wwp.initializeDrawingArea(drawingDiv[0]);
 
+      wwp.drawLine(20, 30, 30, 300);
+
+      var elements = [];
+      paper.forEach(function(element){
+        elements.push(element);
+      });
+      expect(elements.length).to.equal(1);
+    });
+    
   });
 }());
