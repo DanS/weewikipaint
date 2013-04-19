@@ -35,11 +35,12 @@
       drawingDiv = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingDiv);
 
-        var paper = wwp.initializeDrawingArea(drawingDiv[0]);
+      var paper = wwp.initializeDrawingArea(drawingDiv[0]);
       expect(paper.width).to.equal(400);
       expect(paper.height).to.equal(200);
     });
-    
+
+
     it("should draw a line", function(){
       drawingDiv = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingDiv);
@@ -53,9 +54,21 @@
       });
       expect(elements.length).to.equal(1);
       var element = elements[0];
-      var path = element.node.attributes.d.value;
+      var path = pathFor(element);
       expect(path).to.equal("M20,30L30,300");
     });
-    
+
+
+    function pathFor(element) {
+      var path = element.node.attributes.d.value;
+      if(path.indexOf(",") !== -1){
+        return path;
+      }else{
+        var ie9Path = /M (\d+) (\d+) L (\d+) (\d+)/;
+        var ie9 = path.match(ie9Path);
+        return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
+      }
+      return path;
+    }
   });
 }());
