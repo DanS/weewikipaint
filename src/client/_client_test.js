@@ -52,6 +52,9 @@
         elements.push(element);
       });
       expect(elements.length).to.equal(1);
+      var element = elements[0];
+      var path = element.node.attributes.d.value;
+      expect(path).to.equal("M20,30L30,300");
     });
     
   });
