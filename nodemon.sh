@@ -1,1 +1,1 @@
-nodemon node_modules/.bin/jake --trace
+nodemon node_modules/.bin/jake loose=true --trace
