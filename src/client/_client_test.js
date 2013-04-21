@@ -59,19 +59,13 @@
     });
 
     function pathFor(element) {
-      var path;
-      if(Raphael.vml){
-        var VLM_MAGIC_NUMBER = 21600;
-        path = element.node.path.value;
-        var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
-        var ie8 = path.match(ie8PathRegex);
-        var startX = ie8[1] / VLM_MAGIC_NUMBER;
-        var startY = ie8[2] / VLM_MAGIC_NUMBER;
-        var endX = ie8[3] / VLM_MAGIC_NUMBER;
-        var endY = ie8[4] / VLM_MAGIC_NUMBER;
-        return 'M' + startX + ',' + startY + 'L' + endX + ',' + endY;
-      }
-      path = element.node.attributes.d.value;
+      if(Raphael.vml) return vmlPathfor(element);
+      else if(Raphael.svg) return svgPathfor(element);
+      else throw new Error("Unknown Raphael type");
+    }
+
+    function svgPathfor(element){
+      var path = element.node.attributes.d.value;
       if(path.indexOf(",") !== -1){
         return path;
       }else{
@@ -79,7 +73,19 @@
         var ie9 = path.match(ie9PathRegex);
         return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
       }
-      return path;
     }
+    
+    function vmlPathfor(element){
+       var VLM_MAGIC_NUMBER = 21600;
+        var path = element.node.path.value;
+        var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
+        var ie8 = path.match(ie8PathRegex);
+        var startX = ie8[1] / VLM_MAGIC_NUMBER;
+        var startY = ie8[2] / VLM_MAGIC_NUMBER;
+        var endX = ie8[3] / VLM_MAGIC_NUMBER;
+        var endY = ie8[4] / VLM_MAGIC_NUMBER;
+        return 'M' + startX + ',' + startY + 'L' + endX + ',' + endY;
+    }
+
   });
 }());
