@@ -9,30 +9,30 @@ wwp = {};
   var paper;
 
   wwp.initializeDrawingArea = function(drawingAreaElement) {
-    var prevX = null;
-    var prevY = null;
-    var jqArea = $(drawingAreaElement);
-    var isDragging = false;
-
     paper = new Raphael(drawingAreaElement);
+    //var prevX = null;
+    //var prevY = null;
+    //var jqArea = $(drawingAreaElement);
+    //var isDragging = false;
+
     
-    jqArea.mousedown(function(event){
-      isDragging = true;
-    });
+    //jqArea.mousedown(function(event){
+      //isDragging = true;
+    //});
 
-    jqArea.mouseup(function(event){
-      isDragging = false;
-    });
+    //jqArea.mouseup(function(event){
+      //isDragging = false;
+    //});
 
-    jqArea.mousemove(function(event){
-      var divPageX = $(jqArea).offset().left;
-      var divPageY = $(jqArea).offset().top;
-      var relativeX = event.pageX - divPageX;
-      var relativeY = event.pageY - divPageY;
-      if(prevX !== null && isDragging) wwp.drawLine(prevX, prevY, relativeX, relativeY);
-      prevX = relativeX;
-      prevY = relativeY;
-    });
+    //jqArea.mousemove(function(event){
+      //var divPageX = $(jqArea).offset().left;
+      //var divPageY = $(jqArea).offset().top;
+      //var relativeX = event.pageX - divPageX;
+      //var relativeY = event.pageY - divPageY;
+      //if(prevX !== null && isDragging) wwp.drawLine(prevX, prevY, relativeX, relativeY);
+      //prevX = relativeX;
+      //prevY = relativeY;
+    //});
     return paper;
   };
   
