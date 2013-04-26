@@ -9,17 +9,17 @@
     var drawingArea;
     var paper;
 
-    beforeEach(function(){
-      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
-      $(document.body).append(drawingArea);
-      paper = wwp.initializeDrawingArea(drawingArea[0]);
-    });
+    //beforeEach(function(){
+    //});
 
     afterEach(function() {
       drawingArea.remove();
     });
 
     it("should have the same dimensions as its enclosing div", function() {
+      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+      $(document.body).append(drawingArea);
+      paper = wwp.initializeDrawingArea(drawingArea[0]);
       expect(paper.width).to.equal(400);
       expect(paper.height).to.equal(200);
     });
@@ -30,22 +30,56 @@
       expect(elements.length).to.equal(1);
       expect(pathFor(elements[0])).to.equal("M20,30L30,300");
     });
-    
-    it("responds to the mouse", function(){
+
+    function clickMouse(pageX, pageY) {
+      var eventData = new jQuery.Event();
+      eventData.pageX = pageX;
+      eventData.pageY = pageY;
+      eventData.type = 'click';
+      drawingArea.trigger(eventData);
+    }
+
+    function relativePosition(drawingArea, pageX, pageY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      var x = pageX - topLeftOfDrawingArea.left;
+      var y = pageY - topLeftOfDrawingArea.top;
+      return {x: x, y: y};
+    }
+
+    it("draws line segments in response to clicks", function() {
+      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+      $(document.body).append(drawingArea);
+      paper = wwp.initializeDrawingArea(drawingArea[0]);
       //click inside drawing area
       //verify that a line was drawn
-
-      var eventData = new jQuery.Event();
-      eventData.pageX = 20;
-      eventData.pageY = 30;
-      eventData.type = 'click';
-      
-      drawingArea.trigger(eventData);
-
+      clickMouse(20, 30);
+      var position = relativePosition(drawingArea, 20, 30);
       var elements = drawingElements(paper);
       expect(elements.length).to.equal(1);
-      expect(pathFor(elements[0])).to.equal("M0,0L20,30");
+      expect(pathFor(elements[0])).to.equal("M0,0L" + position.x + ',' + position.y);
     });
+    
+    //it("considers border when calculating mouse target", function(){
+      //drawingArea = $("<div style='height: 200px; width: 400px borderW-width: 13px'>hi</div>");
+      //$(document.body).append(drawingArea);
+      //paper = wwp.initializeDrawingArea(drawingArea[0]);
+      
+      //var eventData = new jQuery.Event();
+      //eventData.pageX = 20;
+      //eventData.pageY = 30;
+      //eventData.type = 'click';
+      
+      //drawingArea.trigger(eventData);
+
+      //var topLeftOfDrawingArea = drawingArea.offset();
+      //var borderWidth = 13;
+      //var expectedX = 20 - topLeftOfDrawingArea.left - borderWidth;
+      //var expectedY = 30 - topLeftOfDrawingArea.top - borderWidth;
+
+      //var elements = drawingElements(paper);
+      //expect(elements.length).to.equal(1);
+      //expect(pathFor(elements[0])).to.equal("M0,0L" + expectedX + ',' + expectedY);
+    //});
 
     function drawingElements(paper) {
       var result = [];
