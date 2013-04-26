@@ -50,13 +50,16 @@
       drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingArea);
       paper = wwp.initializeDrawingArea(drawingArea[0]);
-      //click inside drawing area
-      //verify that a line was drawn
+      
       clickMouse(20, 30);
-      var position = relativePosition(drawingArea, 20, 30);
+      clickMouse(50, 60);
+
+      var start = relativePosition(drawingArea, 20, 30);
+      var end = relativePosition(drawingArea, 50, 60);
+      
       var elements = drawingElements(paper);
       expect(elements.length).to.equal(1);
-      expect(pathFor(elements[0])).to.equal("M0,0L" + position.x + ',' + position.y);
+      expect(pathFor(elements[0])).to.equal("M" + start.x + ',' + start.y + "L" + end.x + ',' + end.y);
     });
     
     //it("considers border when calculating mouse target", function(){
