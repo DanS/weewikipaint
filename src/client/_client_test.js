@@ -31,48 +31,34 @@
       expect(pathFor(elements[0])).to.equal("M20,30L30,300");
     });
 
-    function clickMouse(pageX, pageY) {
-      var eventData = new jQuery.Event();
-      eventData.pageX = pageX;
-      eventData.pageY = pageY;
-      eventData.type = 'click';
-      drawingArea.trigger(eventData);
-    }
-
-    function relativePosition(drawingArea, pageX, pageY) {
-      var topLeftOfDrawingArea = drawingArea.offset();
-      var x = pageX - topLeftOfDrawingArea.left;
-      var y = pageY - topLeftOfDrawingArea.top;
-      return {x: x, y: y};
-    }
-
     it("draws line segments in response to clicks", function() {
       drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingArea);
       paper = wwp.initializeDrawingArea(drawingArea[0]);
-      
+
       clickMouse(20, 30);
       clickMouse(50, 60);
-      clickMouse(40, 20);
+//      clickMouse(40, 20);
 
-      var start = relativePosition(drawingArea, 20, 30);
-      var end = relativePosition(drawingArea, 50, 60);
-      
-      var elements = drawingElements(paper);
-      expect(elements.length).to.equal(2);
-      expect(pathFor(elements[0])).to.equal("M" + start.x + ',' + start.y + "L" + end.x + ',' + end.y);
+      expect(paperPaths(paper)).to.eql([20, 30, 50, 60]);
     });
-    
+
+    function paperPaths(paper){
+      var elements = drawingElements(paper);
+      var box = elements[0].getBBox();
+      return [ box.x, box.y, box.x2, box.y2];
+    }
+
     //it("considers border when calculating mouse target", function(){
       //drawingArea = $("<div style='height: 200px; width: 400px borderW-width: 13px'>hi</div>");
       //$(document.body).append(drawingArea);
       //paper = wwp.initializeDrawingArea(drawingArea[0]);
-      
+
       //var eventData = new jQuery.Event();
       //eventData.pageX = 20;
       //eventData.pageY = 30;
       //eventData.type = 'click';
-      
+
       //drawingArea.trigger(eventData);
 
       //var topLeftOfDrawingArea = drawingArea.offset();
@@ -85,6 +71,18 @@
       //expect(pathFor(elements[0])).to.equal("M0,0L" + expectedX + ',' + expectedY);
     //});
 
+   function clickMouse(relativeX, relativeY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      var pageX = relativeX + topLeftOfDrawingArea.left;
+      var pageY = relativeY + topLeftOfDrawingArea.top;
+
+      var eventData = new jQuery.Event();
+      eventData.pageX = pageX;
+      eventData.pageY = pageY;
+      eventData.type = 'click';
+      drawingArea.trigger(eventData);
+    }
+
     function drawingElements(paper) {
       var result = [];
       paper.forEach(function (element) {
@@ -96,7 +94,7 @@
     function pathFor(element) {
       var box = element.getBBox();
       return 'M' + box.x + ',' + box.y + 'L' + box.x2 + ',' + box.y2;
-      
+
       //if(Raphael.vml) return vmlPathfor(element);
       //else if(Raphael.svg) return svgPathfor(element);
       //else throw new Error("Unknown Raphael type");
@@ -112,7 +110,7 @@
         //return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
       //}
     //}
-    
+
     //function vmlPathfor(element){
        //var VLM_MAGIC_NUMBER = 21600;
         //var path = element.node.path.value;
