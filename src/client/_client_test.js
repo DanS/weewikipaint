@@ -16,20 +16,23 @@
       drawingArea.remove();
     });
 
-    it("should have the same dimensions as its enclosing div", function() {
-      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
-      $(document.body).append(drawingArea);
-      paper = wwp.initializeDrawingArea(drawingArea[0]);
-      expect(paper.width).to.equal(400);
-      expect(paper.height).to.equal(200);
-    });
+		it("should have the same dimensions as its enclosing div", function() {
+			drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
+			$(document.body).append(drawingArea);
+			paper = wwp.initializeDrawingArea(drawingArea[0]);
 
-    it("should draw a line", function(){
-      wwp.drawLine(20, 30, 30, 300);
-      var elements = drawingElements(paper);
-      expect(elements.length).to.equal(1);
-      expect(pathFor(elements[0])).to.equal("M20,30L30,300");
-    });
+			expect(paper.height).to.equal(300);
+			expect(paper.width).to.equal(600);
+		});
+
+		it("should draw a line", function() {
+			drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
+			$(document.body).append(drawingArea);
+			paper = wwp.initializeDrawingArea(drawingArea[0]);
+
+			wwp.drawLine(20, 30, 30, 300);
+			expect(paperPaths(paper)).to.eql([ [20, 30, 30, 300] ]);
+		});
 
     it("draws line segments in response to clicks", function() {
       drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
@@ -47,7 +50,7 @@
       var box;
       var result = [];
       for(var i = 0; i < drawingElements(paper).length; i++){
-        box = drawingElements(paper)[i].getBBox();
+        box = pathFor(drawingElements(paper)[i]);
         result.push([ box.x, box.y, box.x2, box.y2]);
       }
       return result;
@@ -96,36 +99,41 @@
     }
 
     function pathFor(element) {
-      var box = element.getBBox();
-      return 'M' + box.x + ',' + box.y + 'L' + box.x2 + ',' + box.y2;
+//      var box = element.getBBox();
+//      return 'M' + box.x + ',' + box.y + 'L' + box.x2 + ',' + box.y2;
 
-      //if(Raphael.vml) return vmlPathfor(element);
-      //else if(Raphael.svg) return svgPathfor(element);
-      //else throw new Error("Unknown Raphael type");
+      if(Raphael.vml) return vmlPathfor(element);
+      else if(Raphael.svg) return svgPathfor(element);
+      else throw new Error("Unknown Raphael type");
     }
 
-    //function svgPathfor(element){
-      //var path = element.node.attributes.d.value;
-      //if(path.indexOf(",") !== -1){
-        //return path;
-      //}else{
-        //var ie9PathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
-        //var ie9 = path.match(ie9PathRegex);
-        //return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
-      //}
-    //}
+    function svgPathfor(element){
+      var path = element.node.attributes.d.value;
+      if(path.indexOf(",") !== -1){
+        return path;
+      }else{
+        var ie9PathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
+        var ie9 = path.match(ie9PathRegex);
+        return "M" + ie9[1] + "," + ie9[2] + "L" + ie9[3] + "," + ie9[4];
+      }
+    }
 
-    //function vmlPathfor(element){
-       //var VLM_MAGIC_NUMBER = 21600;
-        //var path = element.node.path.value;
-        //var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
-        //var ie8 = path.match(ie8PathRegex);
-        //var startX = ie8[1] / VLM_MAGIC_NUMBER;
-        //var startY = ie8[2] / VLM_MAGIC_NUMBER;
-        //var endX = ie8[3] / VLM_MAGIC_NUMBER;
-        //var endY = ie8[4] / VLM_MAGIC_NUMBER;
-        //return 'M' + startX + ',' + startY + 'L' + endX + ',' + endY;
-    //}
+    function vmlPathfor(element){
+       var VML_MAGIC_NUMBER = 21600;
+        var path = element.node.path.value;
+        var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
+        var ie8 = path.match(ie8PathRegex);
+        var startX = ie8[1] / VML_MAGIC_NUMBER;
+        var startY = ie8[2] / VML_MAGIC_NUMBER;
+        var endX = ie8[3] / VML_MAGIC_NUMBER;
+        var endY = ie8[4] / VML_MAGIC_NUMBER;
+        return{
+          x: startX,
+          y: startY,
+          x2: endX,
+          y2: endY
+       };
+    }
 
   });
 }());
