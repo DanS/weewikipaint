@@ -40,13 +40,17 @@
       clickMouse(50, 60);
 //      clickMouse(40, 20);
 
-      expect(paperPaths(paper)).to.eql([20, 30, 50, 60]);
+      expect(paperPaths(paper)).to.eql([[20, 30, 50, 60]]); //, [50, 60, 40, 20 ]]);
     });
 
     function paperPaths(paper){
-      var elements = drawingElements(paper);
-      var box = elements[0].getBBox();
-      return [ box.x, box.y, box.x2, box.y2];
+      var box;
+      var result = [];
+      for(var i = 0; i < drawingElements(paper).length; i++){
+        box = drawingElements(paper)[i].getBBox();
+        result.push([ box.x, box.y, box.x2, box.y2]);
+      }
+      return result;
     }
 
     //it("considers border when calculating mouse target", function(){
