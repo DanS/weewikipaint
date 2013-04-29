@@ -17,6 +17,9 @@ wwp = {};
 
     $(document).mousedown(function(event){
       isDragging = true;
+      var pageOffset = drawingArea.offset();
+      startX = event.pageX - pageOffset.left;
+      startY = event.pageY - pageOffset.top;
     });
 
     $(document).mouseup(function(event){
