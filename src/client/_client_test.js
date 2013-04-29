@@ -49,16 +49,6 @@
         [20, 30, 50, 60], [50, 60, 40, 20 ]]);
     });
 
-    function paperPaths(paper) {
-      var box;
-      var result = [];
-      for (var i = 0; i < drawingElements(paper).length; i++) {
-        box = pathFor(drawingElements(paper)[i]);
-        result.push([ box.x, box.y, box.x2, box.y2]);
-      }
-      return result;
-    }
-
     //it("considers border when calculating mouse target", function(){
     //drawingArea = $("<div style='height: 200px; width: 400px borderW-width: 13px'>hi</div>");
     //$(document.body).append(drawingArea);
@@ -93,6 +83,16 @@
       drawingArea.trigger(eventData);
     }
 
+    function paperPaths(paper) {
+      var box;
+      var result = [];
+      for (var i = 0; i < drawingElements(paper).length; i++) {
+        box = pathFor(drawingElements(paper)[i]);
+        result.push([ box.x, box.y, box.x2, box.y2]);
+      }
+      return result;
+    }
+
     function drawingElements(paper) {
       var result = [];
       paper.forEach(function (element) {
@@ -108,27 +108,20 @@
     }
 
     function svgPathfor(element) {
+      var pathRegex;
       var path = element.node.attributes.d.value;
       if (path.indexOf(",") !== -1) {
-        var modernPathRegex = /M(\d+),(\d+)L(\d+),(\d+)/;
-        var modern = path.match(modernPathRegex);
-        return{
-          x: modern[1],
-          y: modern[2],
-          x2: modern[3],
-          y2: modern[4]
-        };
+        pathRegex = /M(\d+),(\d+)L(\d+),(\d+)/;
       } else {
-        var ie9PathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
-        var ie9 = path.match(ie9PathRegex);
+        pathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
+        }
+        var pathComponents = path.match(pathRegex);
         return{
-          x: ie9[1],
-          y: ie9[2],
-          x2: ie9[3],
-          y2: ie9[4]
-        };
-      }
-      return path;
+          x: pathComponents[1],
+          y: pathComponents[2],
+          x2: pathComponents[3],
+          y2: pathComponents[4]
+      };
     }
 
     function vmlPathfor(element) {
