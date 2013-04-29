@@ -41,12 +41,14 @@
       $(document.body).append(drawingArea);
       paper = wwp.initializeDrawingArea(drawingArea[0]);
 
-      clickMouse(20, 30);
-      clickMouse(50, 60);
-      clickMouse(40, 20);
+      mouseMove(20, 30);
+      mouseMove(50, 60);
+      mouseMove(40, 20);
+//      clickMouse(20, 30);
+//      clickMouse(50, 60);
+//      clickMouse(40, 20);
 
-      expect(paperPaths(paper)).to.eql([
-        [20, 30, 50, 60], [50, 60, 40, 20 ]]);
+     expect(paperPaths(paper)).to.eql([ [20, 30, 50, 60], [50, 60, 40, 20 ]]);
     });
 
     //it("considers border when calculating mouse target", function(){
@@ -80,6 +82,42 @@
       eventData.pageX = pageX;
       eventData.pageY = pageY;
       eventData.type = 'click';
+      drawingArea.trigger(eventData);
+    }
+
+    function mouseDown(relativeX, relativeY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      var pageX = relativeX + topLeftOfDrawingArea.left;
+      var pageY = relativeY + topLeftOfDrawingArea.top;
+
+      var eventData = new jQuery.Event();
+      eventData.pageX = pageX;
+      eventData.pageY = pageY;
+      eventData.type = 'mousedown';
+      drawingArea.trigger(eventData);
+    }
+
+    function mouseUp(relativeX, relativeY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      var pageX = relativeX + topLeftOfDrawingArea.left;
+      var pageY = relativeY + topLeftOfDrawingArea.top;
+
+      var eventData = new jQuery.Event();
+      eventData.pageX = pageX;
+      eventData.pageY = pageY;
+      eventData.type = 'mouseup';
+      drawingArea.trigger(eventData);
+    }
+
+    function mouseMove(relativeX, relativeY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      var pageX = relativeX + topLeftOfDrawingArea.left;
+      var pageY = relativeY + topLeftOfDrawingArea.top;
+
+      var eventData = new jQuery.Event();
+      eventData.pageX = pageX;
+      eventData.pageY = pageY;
+      eventData.type = 'mousemove';
       drawingArea.trigger(eventData);
     }
 
