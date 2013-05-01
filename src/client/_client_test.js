@@ -124,15 +124,20 @@
     //expect(elements.length).to.equal(1);
     //expect(pathFor(elements[0])).to.equal("M0,0L" + expectedX + ',' + expectedY);
     //});
+    function pageOffset(drawingArea, relativeX, relativeY){
+      var topLeftOfDrawingArea = drawingArea.offset();
+      return {
+        x: relativeX + topLeftOfDrawingArea.left,
+        y: relativeY + topLeftOfDrawingArea.top
+      };
+    }
 
     function mouseDown(relativeX, relativeY) {
-      var topLeftOfDrawingArea = drawingArea.offset();
-      var pageX = relativeX + topLeftOfDrawingArea.left;
-      var pageY = relativeY + topLeftOfDrawingArea.top;
+      var page = pageOffset(drawingArea, relativeX, relativeY);
 
       var eventData = new jQuery.Event();
-      eventData.pageX = pageX;
-      eventData.pageY = pageY;
+      eventData.pageX = page.x;
+      eventData.pageY = page.y;
       eventData.type = 'mousedown';
       drawingArea.trigger(eventData);
     }
