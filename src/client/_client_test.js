@@ -25,17 +25,6 @@
       expect(paper.width).to.equal(600);
     });
 
-    it("should draw a line", function () {
-      drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
-      $(document.body).append(drawingArea);
-      paper = wwp.initializeDrawingArea(drawingArea[0]);
-
-      wwp.drawLine(20, 30, 30, 300);
-      expect(paperPaths(paper)).to.eql([
-        [20, 30, 30, 300]
-      ]);
-    });
-
     it("does not draw line segments when mouse is not down", function () {
       drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingArea);

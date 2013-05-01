@@ -29,7 +29,7 @@ wwp = {};
       var end = relativeOffset(drawingArea, event.pageX, event.pageY);
 
       if (start === null) return;
-      wwp.drawLine(start.x, start.y, end.x, end.y);
+      drawLine(start.x, start.y, end.x, end.y);
       start = end;
     });
 
@@ -38,9 +38,9 @@ wwp = {};
     });
   }
 
-  wwp.drawLine = function (startX, startY, endX, endY) {
+  function drawLine (startX, startY, endX, endY) {
     paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
-  };
+  }
 
   function relativeOffset(element, absoluteX, absoluteY) {
     var pageOffset = element.offset();
