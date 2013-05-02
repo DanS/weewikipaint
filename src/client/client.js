@@ -20,9 +20,10 @@ wwp = {};
     var start = null;
 
     $(document).mousedown(function (event) {
-      start = relativeOffset(drawingArea, event.pageX, event.pageY);
-
-      var pageOffset = drawingArea.offset();
+      var offset = relativeOffset(drawingArea, event.pageX, event.pageY);
+      if(offset.x >= 0 && offset.x <= paper.width && offset.y >= 0 && offset.y <= paper.height){
+        start = offset;
+      }
     });
 
     drawingArea.mousemove(function (event) {

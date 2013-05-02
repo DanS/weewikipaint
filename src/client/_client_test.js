@@ -47,6 +47,37 @@
       expect(paperPaths(paper)).to.eql([[20, 30, 50, 60]]);
     });
 
+    it("draws multiple line segments when mouse dragged multiple places", function(){
+      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+      $(document.body).append(drawingArea);
+      paper = wwp.initializeDrawingArea(drawingArea[0]);
+
+      mouseDown(20, 30);
+      mouseMove(50, 60);
+      mouseMove(40, 20);
+      mouseMove(10, 15);
+
+      expect(paperPaths(paper)).to.eql([[20, 30, 50, 60],[50, 60, 40, 20],[40, 20, 10, 15]]);
+    });
+
+    it("draws multiple line segments when there are multiple drags", function(){
+      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+      $(document.body).append(drawingArea);
+      paper = wwp.initializeDrawingArea(drawingArea[0]);
+
+      mouseDown(20, 30);
+      mouseMove(50, 60);
+      mouseUp(50, 60);
+
+      mouseMove(40, 20);
+
+      mouseDown(30, 25);
+      mouseMove(10, 15);
+      mouseUp(10, 15);
+
+      expect(paperPaths(paper)).to.eql([[20, 30, 50, 60],[30, 25, 10, 15]]);
+    });
+
     it("does not draw line segments in response to mouseup events", function(){
       drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
       $(document.body).append(drawingArea);
@@ -71,37 +102,41 @@
       expect(paperPaths(paper)).to.eql([[20, 30, 50, 60]]);
     });
 
-    it("draws multiple line segments when mouse dragged multiple places", function(){
-      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+    it("does not star drawing if drag is started outside drawing area", function(){
+      drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
       $(document.body).append(drawingArea);
       paper = wwp.initializeDrawingArea(drawingArea[0]);
 
-      mouseDown(20, 30);
+      mouseDown(601, 150);
       mouseMove(50, 60);
-      mouseMove(40, 20);
-      mouseMove(10, 15);
 
-      expect(paperPaths(paper)).to.eql([[20, 30, 50, 60],[50, 60, 40, 20],[40, 20, 10, 15]]);
+      mouseDown(-1, 150);
+      mouseMove(50, 60);
+
+      mouseDown(120, 301);
+      mouseMove(50, 60);
+
+      mouseDown(-1, 301);
+      mouseMove(50, 60);
+
+      expect(paperPaths(paper)).to.eql([]);
     });
 
-    it("draws multiple line segments when there are multiple drags", function(){
-      drawingArea = $("<div style='height: 200px; width: 400px'>hi</div>");
+    it("does start drawing if drag is initiated exactly at edge of drawing area", function(){
+      drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
       $(document.body).append(drawingArea);
       paper = wwp.initializeDrawingArea(drawingArea[0]);
 
-      mouseDown(20, 30);
+      mouseDown(600, 300);
       mouseMove(50, 60);
       mouseUp(50, 60);
-      
-      mouseMove(40, 20);
-      
-      mouseDown(30, 25);
-      mouseMove(10, 15);
-      mouseUp(10, 15);
 
-      expect(paperPaths(paper)).to.eql([[20, 30, 50, 60],[30, 25, 10, 15]]);
+      mouseDown(0, 0);
+      mouseMove(50, 60);
+      mouseUp(50, 60);
+
+      expect(paperPaths(paper)).to.eql([[600, 300, 50, 60], [0, 0, 50, 60]]);
     });
-
 
     //it("considers border when calculating mouse target", function(){
     //drawingArea = $("<div style='height: 200px; width: 400px borderW-width: 13px'>hi</div>");
