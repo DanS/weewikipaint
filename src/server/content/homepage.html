@@ -147,7 +147,7 @@
         }
     </style>
 
-    <script src="../../../vendor_client/jquery-1.9.1.js" type="text/javascript"></script>
+    <script src="../../../vendor_client/jquery-1.8.2.js" type="text/javascript"></script>
     <script src="../../../vendor_client/raphael-2.1.0.js" type="text/javascript"></script>
     <script src="../../client/client.js" type="text/javascript"></script>
 </head>
@@ -161,20 +161,22 @@
         <section>
             <h1>Coming Soon</h1>
 
-            <p>WeeWikiPaint is the web's premier <em>collaborative painting site</em>. Or at least, it could be. In the
-              weeks to come, we'll be adding many new features. Check back soon!</p>
+            <p>WeeWikiPaint is the web's premier <em>collaborative painting site</em>. Or at least, it could be. In the weeks to come, we'll be adding many new features. Check back soon!</p>
 
-            <p>You can watch this site get developed! This project is part of James Shore's
-              <a href="http://www.letscodejavascript.com">Let's Code: Test-Driven Javascript</a> screencast, a series
-              focused on rigorous, professional Javascript development. Come join the fun!</p>
+            <p>You can watch this site get developed! This project is part of James Shore's <a href="http://www.letscodejavascript.com">Let's Code: Test-Driven Javascript</a> screencast, a series focused on rigorous, professional Javascript development. Come join the fun!</p>
+        </section>
+        <section>
+            <h1>Draw Here:</h1>
+
+            <div id="drawingArea" style='height: 300px; width: 500px; border: solid red 2px'></div>
         </section>
     </div>
 </div>
-<div id="drawingArea" style='height: 300px; width: 500px; border: solid red 2px'></div>
+
 <script type="text/javascript">
-  $(function(){
-    wwp.initializeDrawingArea($("#drawingArea")[0]);
-  })
+    $(function() {
+        wwp.initializeDrawingArea($("#drawingArea")[0]);
+    });
 </script>
 
 </body>
