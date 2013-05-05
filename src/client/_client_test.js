@@ -33,7 +33,7 @@
         mouseMove(20, 30);
         mouseMove(50, 60);
 
-        expect(paperPaths(paper)).to.eql([]);
+        expect(lineSegments(paper)).to.eql([]);
       });
 
       it("draws a line in response to mouse drag", function () {
@@ -41,7 +41,7 @@
         mouseMove(50, 60);
         mouseUp(50, 60);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments(paper)).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -53,7 +53,7 @@
         mouseMove(10, 15);
         mouseUp(10, 15);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments(paper)).to.eql([
           [20, 30, 50, 60],
           [50, 60, 40, 20],
           [40, 20, 10, 15]
@@ -71,7 +71,7 @@
         mouseMove(10, 15);
         mouseUp(10, 15);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments(paper)).to.eql([
           [20, 30, 50, 60],
           [30, 25, 10, 15]
         ]);
@@ -81,7 +81,7 @@
         mouseDown(20, 30);
         mouseUp(50, 60);
 
-        expect(paperPaths(paper)).to.eql([]);
+        expect(lineSegments(paper)).to.eql([]);
       });
 
       it("stops drawing line segments when the mouse is up", function () {
@@ -90,7 +90,7 @@
         mouseUp(50, 60);
         mouseMove(10, 15);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments(paper)).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -103,7 +103,7 @@
         mouseMove(90, 40);
         mouseUp(90, 40);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments(paper)).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -125,7 +125,7 @@
         mouseMove(50, 60);
         mouseUp(50, 60);
 
-        expect(paperPaths(paper)).to.eql([]);
+        expect(lineSegments()).to.eql([]);
       });
 
       it("does start drawing if drag is initiated exactly at edge of drawing area", function () {
@@ -137,7 +137,7 @@
         mouseMove(50, 60);
         mouseUp(50, 60);
 
-        expect(paperPaths(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [600, 300, 50, 60],
           [0, 0, 50, 60]
         ]);
@@ -179,7 +179,7 @@
     };
   }
 
-  function paperPaths(paper) {
+  function lineSegments(){
     var result = [];
     paper.forEach(function (element) {
       result.push(pathFor(element));
