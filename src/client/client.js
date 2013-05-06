@@ -15,25 +15,25 @@ wwp = {};
     return paper;
   };
 
-  function handleDragEvents( drawingAreaElement) {
+  function handleDragEvents(drawingAreaElement) {
     var drawingArea = $(drawingAreaElement);
     var start = null;
 
     $(document).mousedown(function (event) {
       var offset = relativeOffset(drawingArea, event.pageX, event.pageY);
-      if(isWithinDrawingArea(offset)){
+      if (isWithinDrawingArea(offset)) {
         start = offset;
       }
     });
 
-    drawingArea.mousemove(function (event) {
-      if(start === null) return;
+    $(document).mousemove(function (event) {
+      if (start === null) return;
       var end = relativeOffset(drawingArea, event.pageX, event.pageY);
 
-      if(isWithinDrawingArea(end)){
+      if (isWithinDrawingArea(end)) {
         drawLine(start.x, start.y, end.x, end.y);
         start = end;
-      }else{
+      } else {
         start = null;
       }
     });
@@ -47,7 +47,7 @@ wwp = {};
     return offset.x >= 0 && offset.x <= paper.width && offset.y >= 0 && offset.y <= paper.height;
   }
 
-  function drawLine (startX, startY, endX, endY) {
+  function drawLine(startX, startY, endX, endY) {
     paper.path("M" + startX + "," + startY + "L" + endX + "," + endY);
   }
 

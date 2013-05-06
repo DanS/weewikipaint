@@ -4,13 +4,14 @@
 (function () {
   "use strict";
 
-  var drawingArea;
-  var paper;
-
   describe("Drawing area", function () {
+
+    var drawingArea;
+    var paper;
 
     afterEach(function () {
       drawingArea.remove();
+      $(document).unbind(); 
     });
 
     it("should have the same dimensions as its enclosing div", function () {
@@ -23,17 +24,10 @@
     });
 
     describe("line drawing", function () {
-      beforeEach(function(){
+      beforeEach(function () {
         drawingArea = $("<div style='height: 300px; width: 600px'>hi</div>");
         $(document.body).append(drawingArea);
         paper = wwp.initializeDrawingArea(drawingArea[0]);
-      });
-
-      it("does not draw line segments when mouse is not down", function () {
-        mouseMove(20, 30);
-        mouseMove(50, 60);
-
-        expect(lineSegments(paper)).to.eql([]);
       });
 
       it("draws a line in response to mouse drag", function () {
@@ -41,7 +35,7 @@
         mouseMove(50, 60);
         mouseUp(50, 60);
 
-        expect(lineSegments(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -53,7 +47,7 @@
         mouseMove(10, 15);
         mouseUp(10, 15);
 
-        expect(lineSegments(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [20, 30, 50, 60],
           [50, 60, 40, 20],
           [40, 20, 10, 15]
@@ -71,7 +65,7 @@
         mouseMove(10, 15);
         mouseUp(10, 15);
 
-        expect(lineSegments(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [20, 30, 50, 60],
           [30, 25, 10, 15]
         ]);
@@ -81,16 +75,23 @@
         mouseDown(20, 30);
         mouseUp(50, 60);
 
-        expect(lineSegments(paper)).to.eql([]);
+        expect(lineSegments()).to.eql([]);
       });
 
-      it("stops drawing line segments when the mouse is up", function () {
+      it("does not draw line segments when mouse button is not down", function () {
+        mouseMove(20, 30);
+        mouseMove(50, 60);
+
+        expect(lineSegments()).to.eql([]);
+      });
+
+      it("stops drawing line segments after mouse button is released", function () {
         mouseDown(20, 30);
         mouseMove(50, 60);
         mouseUp(50, 60);
         mouseMove(10, 15);
 
-        expect(lineSegments(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -99,11 +100,11 @@
 //      TODO this passes when it shouldn't
         mouseDown(20, 30);
         mouseMove(50, 60);
-        mouseMove(700, 70);
+        mouseMove(700, 70, $(document));
         mouseMove(90, 40);
         mouseUp(90, 40);
 
-        expect(lineSegments(paper)).to.eql([
+        expect(lineSegments()).to.eql([
           [20, 30, 50, 60]
         ]);
       });
@@ -143,78 +144,81 @@
         ]);
       });
     });
-  });
 
-  function mouseDown(relativeX, relativeY) {
-    sendMouseEvent('mousedown', relativeX, relativeY);
-  }
-
-  function mouseMove(relativeX, relativeY) {
-    sendMouseEvent('mousemove', relativeX, relativeY);
-  }
-
-  function mouseUp(relativeX, relativeY) {
-    sendMouseEvent('mouseup', relativeX, relativeY);
-  }
-
-  function sendMouseEvent(event, relativeX, relativeY) {
-    var page = pageOffset(drawingArea, relativeX, relativeY);
-
-    var topLeftOfDrawingArea = drawingArea.offset();
-    var pageX = relativeX + topLeftOfDrawingArea.left;
-    var pageY = relativeY + topLeftOfDrawingArea.top;
-
-    var eventData = new jQuery.Event();
-    eventData.pageX = pageX;
-    eventData.pageY = pageY;
-    eventData.type = event;
-    drawingArea.trigger(eventData);
-  }
-
-  function pageOffset(drawingArea, relativeX, relativeY) {
-    var topLeftOfDrawingArea = drawingArea.offset();
-    return {
-      x: relativeX + topLeftOfDrawingArea.left,
-      y: relativeY + topLeftOfDrawingArea.top
-    };
-  }
-
-  function lineSegments(){
-    var result = [];
-    paper.forEach(function (element) {
-      result.push(pathFor(element));
-    });
-    return result;
-  }
-
-  function pathFor(element) {
-    if (Raphael.vml) return vmlPathfor(element);
-    else if (Raphael.svg) return svgPathfor(element);
-    else throw new Error("Unknown Raphael type");
-  }
-
-  function svgPathfor(element) {
-    var pathRegex;
-    var path = element.node.attributes.d.value;
-    if (path.indexOf(",") !== -1) {
-      pathRegex = /M(\d+),(\d+)L(\d+),(\d+)/;
-    } else {
-      pathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
+    function mouseDown(relativeX, relativeY) {
+      sendMouseEvent('mousedown', relativeX, relativeY);
     }
-    var pathComponents = path.match(pathRegex);
-    return[ pathComponents[1], pathComponents[2], pathComponents[3], pathComponents[4] ];
-  }
 
-  function vmlPathfor(element) {
-    var VML_MAGIC_NUMBER = 21600;
-    var path = element.node.path.value;
-    var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
-    var ie8 = path.match(ie8PathRegex);
-    var startX = ie8[1] / VML_MAGIC_NUMBER;
-    var startY = ie8[2] / VML_MAGIC_NUMBER;
-    var endX = ie8[3] / VML_MAGIC_NUMBER;
-    var endY = ie8[4] / VML_MAGIC_NUMBER;
-    return[ startX, startY, endX, endY ];
-  }
+    function mouseMove(relativeX, relativeY, optionalElement) {
+      sendMouseEvent('mousemove', relativeX, relativeY, optionalElement);
+    }
 
+    function mouseUp(relativeX, relativeY) {
+      sendMouseEvent('mouseup', relativeX, relativeY);
+    }
+
+    function sendMouseEvent(event, relativeX, relativeY, optionalJqElement) {
+      var jqElement = optionalJqElement || drawingArea;
+      var page = pageOffset(drawingArea, relativeX, relativeY);
+
+      var eventData = new jQuery.Event();
+      eventData.pageX = page.x;
+      eventData.pageY = page.y;
+      eventData.type = event;
+      jqElement.trigger(eventData);
+    }
+
+    function pageOffset(drawingArea, relativeX, relativeY) {
+      var topLeftOfDrawingArea = drawingArea.offset();
+      return {
+        x: relativeX + topLeftOfDrawingArea.left,
+        y: relativeY + topLeftOfDrawingArea.top
+      };
+    }
+
+    function lineSegments() {
+      var result = [];
+      paper.forEach(function (element) {
+        result.push(pathFor(element));
+      });
+      return result;
+    }
+
+    function pathFor(element) {
+      if (Raphael.vml) {
+        return vmlPathFor(element);
+      }
+      else if (Raphael.svg) {
+        return svgPathFor(element);
+      }
+      else {
+        throw new Error("Unknown Raphael type");
+      }
+    }
+
+    function svgPathFor(element) {
+      var pathRegex;
+      var path = element.node.attributes.d.value;
+      if (path.indexOf(",") !== -1) {
+        pathRegex = /M(\d+),(\d+)L(\d+),(\d+)/;
+      } else {
+        pathRegex = /M (\d+) (\d+) L (\d+) (\d+)/;
+      }
+      var pathComponents = path.match(pathRegex);
+      return[ pathComponents[1], pathComponents[2], pathComponents[3], pathComponents[4] ];
+    }
+
+    function vmlPathFor(element) {
+      var VML_MAGIC_NUMBER = 21600;
+      var path = element.node.path.value;
+      var ie8PathRegex = /m(\d+),(\d+) l(\d+),(\d+) e/;
+      var ie8 = path.match(ie8PathRegex);
+      var startX = ie8[1] / VML_MAGIC_NUMBER;
+      var startY = ie8[2] / VML_MAGIC_NUMBER;
+      var endX = ie8[3] / VML_MAGIC_NUMBER;
+      var endY = ie8[4] / VML_MAGIC_NUMBER;
+      return[ startX, startY, endX, endY ];
+    }
+
+  });
 }());
