@@ -19,32 +19,26 @@ wwp = {};
     var drawingArea = $(drawingAreaElement);
     var start = null;
 
-    $(document).mousedown(function (event) {
-      var offset = relativeOffset(drawingArea, event.pageX, event.pageY);
-      if (isWithinDrawingArea(offset)) {
-        start = offset;
-      }
-    });
+		drawingArea.mousedown(function(event) {
+			var offset = relativeOffset(drawingArea, event.pageX, event.pageY);
+      start = offset;
+		});
 
-    $(document).mousemove(function (event) {
-      if (start === null) return;
-      var end = relativeOffset(drawingArea, event.pageX, event.pageY);
+		drawingArea.mousemove(function(event) {
+			if (start === null) return;
 
-      if (isWithinDrawingArea(end)) {
-        drawLine(start.x, start.y, end.x, end.y);
-        start = end;
-      } else {
-        start = null;
-      }
-    });
+			var end = relativeOffset(drawingArea, event.pageX, event.pageY);
+			drawLine(start.x, start.y, end.x, end.y);
+			start = end;
+		});
 
-    $(document).mouseup(function () {
+    drawingArea.mouseleave(function () {
       start = null;
     });
-  }
 
-  function isWithinDrawingArea(offset) {
-    return offset.x >= 0 && offset.x <= paper.width && offset.y >= 0 && offset.y <= paper.height;
+    drawingArea.mouseup(function () {
+      start = null;
+    });
   }
 
   function drawLine(startX, startY, endX, endY) {
