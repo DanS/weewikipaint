@@ -143,6 +143,24 @@
           [0, 0, 50, 60]
         ]);
       });
+
+      it("does not allow text to be selected outside drawing area when drag starts within drawing area", function () {
+
+        drawingArea.mousedown(function(event){
+          expect(event.isDefaultPrevented()).to.be(true);
+        });
+        
+        mouseDown(20, 30);
+        mouseMove(90, 40);
+        mouseUp(90, 40);
+      });
+      
+      it("does not allow text to be selected outside of drawing area INCLUDING IE8", function(){
+        drawingArea.on("selectstart", function(event){
+          expect(event.isDefaultPrevented()).to.be(true);
+        });
+        sendMouseEvent("selectstart", 20, 30);
+      });
     });
 
     function mouseDown(relativeX, relativeY, optionalElement) {
