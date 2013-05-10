@@ -211,14 +211,14 @@
     javascriptFiles.exclude("node_modules");
     javascriptFiles.exclude("testacular.conf.js");
     javascriptFiles.exclude("src/client/**");
-    javascriptFiles.exclude("vendor_client/**");
+//    javascriptFiles.exclude("vendor/**");
     return javascriptFiles.toArray();
   }
 
   function nodeTestFiles() {
     var testFiles = new jake.FileList();
     testFiles.include("src/server/**/_*_test.js");
-    testFiles.exclude("vendor_client/**");
+//    testFiles.exclude("vendor/**");
     testFiles.include("src/_*_test.js");
     testFiles = testFiles.toArray();
     return testFiles;
@@ -226,7 +226,7 @@
 
   function clientFiles() {
     var javascriptFiles = new jake.FileList();
-    javascriptFiles.include("src/client/**/*.js");
+    javascriptFiles.include("src/client/*.js");
     return javascriptFiles.toArray();
   }
 
